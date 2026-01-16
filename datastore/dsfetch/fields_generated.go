@@ -6161,6 +6161,15 @@ func (r *Fetch) Organization_DisableForwardWithAttachments(organizationID int) *
 	return &ValueBool{fetch: r, key: key}
 }
 
+func (r *Fetch) Organization_RestrictEditForwardCommittees(organizationID int) *ValueBool {
+	key, err := dskey.FromParts("organization", organizationID, "restrict_edit_forward_committees")
+	if err != nil {
+		return &ValueBool{err: err}
+	}
+
+	return &ValueBool{fetch: r, key: key}
+}
+
 func (r *Fetch) Organization_EnableAnonymous(organizationID int) *ValueBool {
 	key, err := dskey.FromParts("organization", organizationID, "enable_anonymous")
 	if err != nil {
