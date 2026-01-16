@@ -2948,6 +2948,15 @@ func (r *Fetch) Meeting_EnableAnonymous(meetingID int) *ValueBool {
 	return &ValueBool{fetch: r, key: key}
 }
 
+func (r *Fetch) Meeting_EnableDecisionArchive(meetingID int) *ValueBool {
+	key, err := dskey.FromParts("meeting", meetingID, "enable_decision_archive")
+	if err != nil {
+		return &ValueBool{err: err}
+	}
+
+	return &ValueBool{fetch: r, key: key}
+}
+
 func (r *Fetch) Meeting_EndTime(meetingID int) *ValueInt {
 	key, err := dskey.FromParts("meeting", meetingID, "end_time")
 	if err != nil {
@@ -5182,6 +5191,15 @@ func (r *Fetch) MotionState_SetNumber(motionStateID int) *ValueBool {
 
 func (r *Fetch) MotionState_SetWorkflowTimestamp(motionStateID int) *ValueBool {
 	key, err := dskey.FromParts("motion_state", motionStateID, "set_workflow_timestamp")
+	if err != nil {
+		return &ValueBool{err: err}
+	}
+
+	return &ValueBool{fetch: r, key: key}
+}
+
+func (r *Fetch) MotionState_PublishToArchive(motionStateID int) *ValueBool {
+	key, err := dskey.FromParts("motion_state", motionStateID, "publish_to_archive")
 	if err != nil {
 		return &ValueBool{err: err}
 	}
