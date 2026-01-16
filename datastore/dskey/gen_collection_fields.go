@@ -669,6 +669,7 @@ var collectionFields = [...]collectionField{
 	{"organization", "published_mediafile_ids"},
 	{"organization", "require_duplicate_from"},
 	{"organization", "restrict_edit_forward_committees"},
+	{"organization", "restrict_editing_same_level_committee_admins"},
 	{"organization", "reset_password_verbose_errors"},
 	{"organization", "saml_attr_mapping"},
 	{"organization", "saml_enabled"},
@@ -2308,6 +2309,8 @@ func collectionFieldToID(cf string) int {
 		return 665
 	case "organization/restrict_edit_forward_committees":
 		return 969
+	case "organization/restrict_editing_same_level_committee_admins":
+		return 970
 	case "organization/reset_password_verbose_errors":
 		return 666
 	case "organization/saml_attr_mapping":
