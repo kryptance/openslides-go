@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"slices"
 	"strconv"
 	"strings"
@@ -81,14 +80,6 @@ func (p *FlowPostgres) Close() {
 
 // Get fetches the keys from postgres.
 func (p *FlowPostgres) Get(ctx context.Context, keys ...dskey.Key) (map[dskey.Key][]byte, error) {
-	// Debug: Log that FlowPostgres.Get was called
-	for _, k := range keys {
-		if k.Collection() == "organization" {
-			log.Printf("DEBUG FlowPostgres.Get CALLED for key=%s", k)
-			break
-		}
-	}
-
 	conn, err := p.Pool.Acquire(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("acquiring connection: %w", err)
@@ -134,11 +125,6 @@ func getWithConn(ctx context.Context, conn *pgx.Conn, keys ...dskey.Key) (map[ds
 			collection,
 		)
 
-		// Debug logging for organization collection
-		if collection == "organization" {
-			log.Printf("DEBUG flow_postgres QUERY: collection=%s sql=%s ids=%v", collection, sql, ids)
-		}
-
 		rows, err := conn.Query(ctx, sql, ids)
 		if err != nil {
 			return nil, fmt.Errorf("sending query `%s`: %w", sql, err)
@@ -173,21 +159,11 @@ func getWithConn(ctx context.Context, conn *pgx.Conn, keys ...dskey.Key) (map[ds
 					continue
 				}
 
-				// Debug logging for organization collection
-				if collection == "organization" && (field == "theme_id" || field == "url") {
-					log.Printf("DEBUG flow_postgres: collection=%s field=%s value=%q OID=%d", collection, field, string(value), row.FieldDescriptions()[i].DataTypeOID)
-				}
-
 				converted, err := convertValue(value, row.FieldDescriptions()[i].DataTypeOID)
 				if err != nil {
 					return fmt.Errorf("convert value for field %s/%s: %w", collection, field, err)
 				}
 				keyValues[key] = bytes.Clone(converted)
-
-				// Debug: Log what key-value pair is stored
-				if collection == "organization" && (field == "theme_id" || field == "url") {
-					log.Printf("DEBUG flow_postgres STORE: key=%s converted=%q", key, string(converted))
-				}
 			}
 
 			return nil

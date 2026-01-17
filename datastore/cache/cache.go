@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/OpenSlides/openslides-go/datastore/cache/pendingmap"
 	"github.com/OpenSlides/openslides-go/datastore/dskey"
@@ -56,14 +55,6 @@ func New(flow flow.Flow) *Cache {
 // Possible Errors: context.Canceled or context.DeadlineExeeded or the return
 // value from hte set func.
 func (c *Cache) Get(ctx context.Context, keys ...dskey.Key) (map[dskey.Key][]byte, error) {
-	// Debug: Log that cache.Get was called
-	for _, k := range keys {
-		if k.Collection() == "organization" {
-			log.Printf("DEBUG cache.Get CALLED for key=%s", k)
-			break
-		}
-	}
-
 	// Blocks until all missing (but not pending) keys are fetched.
 	//
 	// After this call, all keys are either pending (from another parallel call)
@@ -78,13 +69,6 @@ func (c *Cache) Get(ctx context.Context, keys ...dskey.Key) (map[dskey.Key][]byt
 			return nil, fmt.Errorf("fetching data in a parallel call failed")
 		}
 		return nil, err
-	}
-
-	// Debug logging for organization theme_id and url
-	for k, v := range got {
-		if k.Collection() == "organization" && (k.Field() == "theme_id" || k.Field() == "url") {
-			log.Printf("DEBUG cache.Get: key=%s value=%q", k, string(v))
-		}
 	}
 
 	return got, nil
