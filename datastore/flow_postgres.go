@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"slices"
 	"strconv"
 	"strings"
@@ -125,6 +126,11 @@ func getWithConn(ctx context.Context, conn *pgx.Conn, keys ...dskey.Key) (map[ds
 			collection,
 		)
 
+		// Debug logging for organization collection
+		if collection == "organization" {
+			log.Printf("DEBUG flow_postgres QUERY: collection=%s sql=%s ids=%v", collection, sql, ids)
+		}
+
 		rows, err := conn.Query(ctx, sql, ids)
 		if err != nil {
 			return nil, fmt.Errorf("sending query `%s`: %w", sql, err)
@@ -161,7 +167,7 @@ func getWithConn(ctx context.Context, conn *pgx.Conn, keys ...dskey.Key) (map[ds
 
 				// Debug logging for organization collection
 				if collection == "organization" && (field == "theme_id" || field == "url") {
-					fmt.Printf("DEBUG flow_postgres: collection=%s field=%s value=%q OID=%d\n", collection, field, string(value), row.FieldDescriptions()[i].DataTypeOID)
+					log.Printf("DEBUG flow_postgres: collection=%s field=%s value=%q OID=%d", collection, field, string(value), row.FieldDescriptions()[i].DataTypeOID)
 				}
 
 				converted, err := convertValue(value, row.FieldDescriptions()[i].DataTypeOID)
