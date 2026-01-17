@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/OpenSlides/openslides-go/datastore/cache/pendingmap"
 	"github.com/OpenSlides/openslides-go/datastore/dskey"
@@ -69,6 +70,13 @@ func (c *Cache) Get(ctx context.Context, keys ...dskey.Key) (map[dskey.Key][]byt
 			return nil, fmt.Errorf("fetching data in a parallel call failed")
 		}
 		return nil, err
+	}
+
+	// Debug logging for organization theme_id and url
+	for k, v := range got {
+		if k.Collection() == "organization" && (k.Field() == "theme_id" || k.Field() == "url") {
+			log.Printf("DEBUG cache.Get: key=%s value=%q", k, string(v))
+		}
 	}
 
 	return got, nil
