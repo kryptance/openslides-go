@@ -159,6 +159,11 @@ func getWithConn(ctx context.Context, conn *pgx.Conn, keys ...dskey.Key) (map[ds
 					continue
 				}
 
+				// Debug logging for organization collection
+				if collection == "organization" && (field == "theme_id" || field == "url") {
+					fmt.Printf("DEBUG flow_postgres: collection=%s field=%s value=%q OID=%d\n", collection, field, string(value), row.FieldDescriptions()[i].DataTypeOID)
+				}
+
 				converted, err := convertValue(value, row.FieldDescriptions()[i].DataTypeOID)
 				if err != nil {
 					return fmt.Errorf("convert value for field %s/%s: %w", collection, field, err)
