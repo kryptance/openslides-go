@@ -1570,6 +1570,7 @@ type Meeting struct {
 	DefaultProjectorTopicIDs                     []int
 	Description                                  string
 	EnableAnonymous                              bool
+	EnableDecisionArchive                        bool
 	EndTime                                      int
 	ExportCsvEncoding                            string
 	ExportCsvSeparator                           string
@@ -1913,6 +1914,7 @@ func (b *meetingBuilder) lazy(ds *Fetch, id int) *Meeting {
 	ds.Meeting_DefaultProjectorTopicIDs(id).Lazy(&c.DefaultProjectorTopicIDs)
 	ds.Meeting_Description(id).Lazy(&c.Description)
 	ds.Meeting_EnableAnonymous(id).Lazy(&c.EnableAnonymous)
+	ds.Meeting_EnableDecisionArchive(id).Lazy(&c.EnableDecisionArchive)
 	ds.Meeting_EndTime(id).Lazy(&c.EndTime)
 	ds.Meeting_ExportCsvEncoding(id).Lazy(&c.ExportCsvEncoding)
 	ds.Meeting_ExportCsvSeparator(id).Lazy(&c.ExportCsvSeparator)
@@ -4842,6 +4844,7 @@ type MotionState struct {
 	Name                             string
 	NextStateIDs                     []int
 	PreviousStateIDs                 []int
+	PublishToArchive                 bool
 	RecommendationLabel              string
 	Restrictions                     []string
 	SetNumber                        bool
@@ -4886,6 +4889,7 @@ func (b *motionStateBuilder) lazy(ds *Fetch, id int) *MotionState {
 	ds.MotionState_Name(id).Lazy(&c.Name)
 	ds.MotionState_NextStateIDs(id).Lazy(&c.NextStateIDs)
 	ds.MotionState_PreviousStateIDs(id).Lazy(&c.PreviousStateIDs)
+	ds.MotionState_PublishToArchive(id).Lazy(&c.PublishToArchive)
 	ds.MotionState_RecommendationLabel(id).Lazy(&c.RecommendationLabel)
 	ds.MotionState_Restrictions(id).Lazy(&c.Restrictions)
 	ds.MotionState_SetNumber(id).Lazy(&c.SetNumber)
@@ -5439,54 +5443,56 @@ func (r *Fetch) Option(ids ...int) *optionBuilder {
 
 // Organization has all fields from organization.
 type Organization struct {
-	ActiveMeetingIDs              []int
-	ArchivedMeetingIDs            []int
-	CommitteeIDs                  []int
-	DefaultLanguage               string
-	Description                   string
-	DisableForwardWithAttachments bool
-	EnableAnonymous               bool
-	EnableChat                    bool
-	EnableElectronicVoting        bool
-	GenderIDs                     []int
-	ID                            int
-	LegalNotice                   string
-	LimitOfMeetings               int
-	LimitOfUsers                  int
-	LoginText                     string
-	MediafileIDs                  []int
-	Name                          string
-	OrganizationTagIDs            []int
-	PrivacyPolicy                 string
-	PublishedMediafileIDs         []int
-	RequireDuplicateFrom          bool
-	ResetPasswordVerboseErrors    bool
-	SamlAttrMapping               json.RawMessage
-	SamlEnabled                   bool
-	SamlLoginButtonText           string
-	SamlMetadataIDp               string
-	SamlMetadataSp                string
-	SamlPrivateKey                string
-	TemplateMeetingIDs            []int
-	ThemeID                       int
-	ThemeIDs                      []int
-	Url                           string
-	UserIDs                       []int
-	UsersEmailBody                string
-	UsersEmailReplyto             string
-	UsersEmailSender              string
-	UsersEmailSubject             string
-	ActiveMeetingList             []Meeting
-	ArchivedMeetingList           []Meeting
-	CommitteeList                 []Committee
-	GenderList                    []Gender
-	MediafileList                 []Mediafile
-	OrganizationTagList           []OrganizationTag
-	PublishedMediafileList        []Mediafile
-	TemplateMeetingList           []Meeting
-	Theme                         *Theme
-	ThemeList                     []Theme
-	UserList                      []User
+	ActiveMeetingIDs                        []int
+	ArchivedMeetingIDs                      []int
+	CommitteeIDs                            []int
+	DefaultLanguage                         string
+	Description                             string
+	DisableForwardWithAttachments           bool
+	EnableAnonymous                         bool
+	EnableChat                              bool
+	EnableElectronicVoting                  bool
+	GenderIDs                               []int
+	ID                                      int
+	LegalNotice                             string
+	LimitOfMeetings                         int
+	LimitOfUsers                            int
+	LoginText                               string
+	MediafileIDs                            []int
+	Name                                    string
+	OrganizationTagIDs                      []int
+	PrivacyPolicy                           string
+	PublishedMediafileIDs                   []int
+	RequireDuplicateFrom                    bool
+	ResetPasswordVerboseErrors              bool
+	RestrictEditForwardCommittees           bool
+	RestrictEditingSameLevelCommitteeAdmins bool
+	SamlAttrMapping                         json.RawMessage
+	SamlEnabled                             bool
+	SamlLoginButtonText                     string
+	SamlMetadataIDp                         string
+	SamlMetadataSp                          string
+	SamlPrivateKey                          string
+	TemplateMeetingIDs                      []int
+	ThemeID                                 int
+	ThemeIDs                                []int
+	Url                                     string
+	UserIDs                                 []int
+	UsersEmailBody                          string
+	UsersEmailReplyto                       string
+	UsersEmailSender                        string
+	UsersEmailSubject                       string
+	ActiveMeetingList                       []Meeting
+	ArchivedMeetingList                     []Meeting
+	CommitteeList                           []Committee
+	GenderList                              []Gender
+	MediafileList                           []Mediafile
+	OrganizationTagList                     []OrganizationTag
+	PublishedMediafileList                  []Mediafile
+	TemplateMeetingList                     []Meeting
+	Theme                                   *Theme
+	ThemeList                               []Theme
+	UserList                                []User
 }
 
 type organizationBuilder struct {
@@ -5517,6 +5523,8 @@ func (b *organizationBuilder) lazy(ds *Fetch, id int) *Organization {
 	ds.Organization_PublishedMediafileIDs(id).Lazy(&c.PublishedMediafileIDs)
 	ds.Organization_RequireDuplicateFrom(id).Lazy(&c.RequireDuplicateFrom)
 	ds.Organization_ResetPasswordVerboseErrors(id).Lazy(&c.ResetPasswordVerboseErrors)
+	ds.Organization_RestrictEditForwardCommittees(id).Lazy(&c.RestrictEditForwardCommittees)
+	ds.Organization_RestrictEditingSameLevelCommitteeAdmins(id).Lazy(&c.RestrictEditingSameLevelCommitteeAdmins)
 	ds.Organization_SamlAttrMapping(id).Lazy(&c.SamlAttrMapping)
 	ds.Organization_SamlEnabled(id).Lazy(&c.SamlEnabled)
 	ds.Organization_SamlLoginButtonText(id).Lazy(&c.SamlLoginButtonText)

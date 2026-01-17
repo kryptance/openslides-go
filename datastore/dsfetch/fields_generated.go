@@ -5162,6 +5162,15 @@ func (r *Fetch) MotionState_PreviousStateIDs(motionStateID int) *ValueIntSlice {
 	return &ValueIntSlice{fetch: r, key: key}
 }
 
+func (r *Fetch) MotionState_PublishToArchive(motionStateID int) *ValueBool {
+	key, err := dskey.FromParts("motion_state", motionStateID, "publish_to_archive")
+	if err != nil {
+		return &ValueBool{err: err}
+	}
+
+	return &ValueBool{fetch: r, key: key}
+}
+
 func (r *Fetch) MotionState_RecommendationLabel(motionStateID int) *ValueString {
 	key, err := dskey.FromParts("motion_state", motionStateID, "recommendation_label")
 	if err != nil {
@@ -5191,15 +5200,6 @@ func (r *Fetch) MotionState_SetNumber(motionStateID int) *ValueBool {
 
 func (r *Fetch) MotionState_SetWorkflowTimestamp(motionStateID int) *ValueBool {
 	key, err := dskey.FromParts("motion_state", motionStateID, "set_workflow_timestamp")
-	if err != nil {
-		return &ValueBool{err: err}
-	}
-
-	return &ValueBool{fetch: r, key: key}
-}
-
-func (r *Fetch) MotionState_PublishToArchive(motionStateID int) *ValueBool {
-	key, err := dskey.FromParts("motion_state", motionStateID, "publish_to_archive")
 	if err != nil {
 		return &ValueBool{err: err}
 	}
@@ -6161,15 +6161,6 @@ func (r *Fetch) Organization_DisableForwardWithAttachments(organizationID int) *
 	return &ValueBool{fetch: r, key: key}
 }
 
-func (r *Fetch) Organization_RestrictEditForwardCommittees(organizationID int) *ValueBool {
-	key, err := dskey.FromParts("organization", organizationID, "restrict_edit_forward_committees")
-	if err != nil {
-		return &ValueBool{err: err}
-	}
-
-	return &ValueBool{fetch: r, key: key}
-}
-
 func (r *Fetch) Organization_EnableAnonymous(organizationID int) *ValueBool {
 	key, err := dskey.FromParts("organization", organizationID, "enable_anonymous")
 	if err != nil {
@@ -6307,6 +6298,24 @@ func (r *Fetch) Organization_RequireDuplicateFrom(organizationID int) *ValueBool
 
 func (r *Fetch) Organization_ResetPasswordVerboseErrors(organizationID int) *ValueBool {
 	key, err := dskey.FromParts("organization", organizationID, "reset_password_verbose_errors")
+	if err != nil {
+		return &ValueBool{err: err}
+	}
+
+	return &ValueBool{fetch: r, key: key}
+}
+
+func (r *Fetch) Organization_RestrictEditForwardCommittees(organizationID int) *ValueBool {
+	key, err := dskey.FromParts("organization", organizationID, "restrict_edit_forward_committees")
+	if err != nil {
+		return &ValueBool{err: err}
+	}
+
+	return &ValueBool{fetch: r, key: key}
+}
+
+func (r *Fetch) Organization_RestrictEditingSameLevelCommitteeAdmins(organizationID int) *ValueBool {
+	key, err := dskey.FromParts("organization", organizationID, "restrict_editing_same_level_committee_admins")
 	if err != nil {
 		return &ValueBool{err: err}
 	}
