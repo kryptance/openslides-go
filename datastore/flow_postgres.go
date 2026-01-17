@@ -183,6 +183,11 @@ func getWithConn(ctx context.Context, conn *pgx.Conn, keys ...dskey.Key) (map[ds
 					return fmt.Errorf("convert value for field %s/%s: %w", collection, field, err)
 				}
 				keyValues[key] = bytes.Clone(converted)
+
+				// Debug: Log what key-value pair is stored
+				if collection == "organization" && (field == "theme_id" || field == "url") {
+					log.Printf("DEBUG flow_postgres STORE: key=%s converted=%q", key, string(converted))
+				}
 			}
 
 			return nil
