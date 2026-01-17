@@ -56,6 +56,14 @@ func New(flow flow.Flow) *Cache {
 // Possible Errors: context.Canceled or context.DeadlineExeeded or the return
 // value from hte set func.
 func (c *Cache) Get(ctx context.Context, keys ...dskey.Key) (map[dskey.Key][]byte, error) {
+	// Debug: Log that cache.Get was called
+	for _, k := range keys {
+		if k.Collection() == "organization" {
+			log.Printf("DEBUG cache.Get CALLED for key=%s", k)
+			break
+		}
+	}
+
 	// Blocks until all missing (but not pending) keys are fetched.
 	//
 	// After this call, all keys are either pending (from another parallel call)

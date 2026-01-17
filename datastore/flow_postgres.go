@@ -81,6 +81,14 @@ func (p *FlowPostgres) Close() {
 
 // Get fetches the keys from postgres.
 func (p *FlowPostgres) Get(ctx context.Context, keys ...dskey.Key) (map[dskey.Key][]byte, error) {
+	// Debug: Log that FlowPostgres.Get was called
+	for _, k := range keys {
+		if k.Collection() == "organization" {
+			log.Printf("DEBUG FlowPostgres.Get CALLED for key=%s", k)
+			break
+		}
+	}
+
 	conn, err := p.Pool.Acquire(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("acquiring connection: %w", err)
