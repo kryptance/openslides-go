@@ -2306,7 +2306,7 @@ func (r *Fetch) MeetingUser_GroupIDs(meetingUserID int) *ValueIntSlice {
 		return &ValueIntSlice{err: err}
 	}
 
-	return &ValueIntSlice{fetch: r, key: key, required: true}
+	return &ValueIntSlice{fetch: r, key: key}
 }
 
 func (r *Fetch) MeetingUser_ID(meetingUserID int) *ValueInt {
@@ -6244,24 +6244,6 @@ func (r *Fetch) Organization_RequireDuplicateFrom(organizationID int) *ValueBool
 
 func (r *Fetch) Organization_ResetPasswordVerboseErrors(organizationID int) *ValueBool {
 	key, err := dskey.FromParts("organization", organizationID, "reset_password_verbose_errors")
-	if err != nil {
-		return &ValueBool{err: err}
-	}
-
-	return &ValueBool{fetch: r, key: key}
-}
-
-func (r *Fetch) Organization_RestrictEditForwardCommittees(organizationID int) *ValueBool {
-	key, err := dskey.FromParts("organization", organizationID, "restrict_edit_forward_committees")
-	if err != nil {
-		return &ValueBool{err: err}
-	}
-
-	return &ValueBool{fetch: r, key: key}
-}
-
-func (r *Fetch) Organization_RestrictEditingSameLevelCommitteeAdmins(organizationID int) *ValueBool {
-	key, err := dskey.FromParts("organization", organizationID, "restrict_editing_same_level_committee_admins")
 	if err != nil {
 		return &ValueBool{err: err}
 	}
