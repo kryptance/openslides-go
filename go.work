@@ -3,6 +3,7 @@ go 1.25.0
 use (
 	./lib/openslides-go
 	./openslides-autoupdate-service
+	./openslides-backend-service
 	./openslides-icc-service
 	./openslides-projector-service
 	./openslides-search-service

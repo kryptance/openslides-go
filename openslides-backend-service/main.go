@@ -1,0 +1,130 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	golog "log"
+	"os"
+	"strconv"
+
+	"github.com/OpenSlides/openslides-go/auth"
+	"github.com/OpenSlides/openslides-go/environment"
+	messageBusRedis "github.com/OpenSlides/openslides-go/redis"
+	backendhttp "github.com/OpenSlides/openslides-backend-service/internal/http"
+	"github.com/alecthomas/kong"
+)
+
+var envDebugLog = environment.NewVariable("BACKEND_DEBUG_LOG", "false", "Show debug log.")
+
+//go:generate  sh -c "go run main.go build-doc > environment.md"
+
+var cli struct {
+	Run      struct{} `cmd:"" help:"Runs the service." default:"withargs"`
+	BuildDoc struct{} `cmd:"" help:"Build the environment documentation."`
+	Health   struct {
+		Host     string `help:"Host of the service" short:"h" default:"localhost"`
+		Port     string `help:"Port of the service" short:"p" default:"9002" env:"BACKEND_PORT"`
+		UseHTTPS bool   `help:"Use https to connect to the service" short:"s"`
+		Insecure bool   `help:"Accept invalid cert" short:"k"`
+	} `cmd:"" help:"Runs a health check."`
+}
+
+func main() {
+	ctx, cancel := environment.InterruptContext()
+	defer cancel()
+
+	kongCTX := kong.Parse(&cli, kong.UsageOnError())
+	switch kongCTX.Command() {
+	case "run":
+		if err := contextDone(run(ctx)); err != nil {
+			handleError(err)
+			os.Exit(1)
+		}
+
+	case "build-doc":
+		if err := contextDone(buildDocu()); err != nil {
+			handleError(err)
+			os.Exit(1)
+		}
+
+	case "health":
+		if err := contextDone(backendhttp.HealthClient(ctx, cli.Health.UseHTTPS, cli.Health.Host, cli.Health.Port, cli.Health.Insecure)); err != nil {
+			handleError(err)
+			os.Exit(1)
+		}
+	}
+}
+
+func run(ctx context.Context) error {
+	lookup := new(environment.ForProduction)
+
+	if debug, _ := strconv.ParseBool(envDebugLog.Value(lookup)); debug {
+		golog.SetFlags(golog.LstdFlags | golog.Lshortfile)
+	}
+
+	service, err := initService(lookup)
+	if err != nil {
+		return fmt.Errorf("init services: %w", err)
+	}
+
+	return service(ctx)
+}
+
+func buildDocu() error {
+	lookup := new(environment.ForDocu)
+
+	if _, err := initService(lookup); err != nil {
+		return fmt.Errorf("init services: %w", err)
+	}
+
+	doc, err := lookup.BuildDoc()
+	if err != nil {
+		return fmt.Errorf("build doc: %w", err)
+	}
+
+	fmt.Println(doc)
+	return nil
+}
+
+func initService(lookup environment.Environmenter) (func(context.Context) error, error) {
+	var backgroundTasks []func(context.Context, func(error))
+
+	httpServer := backendhttp.New(lookup)
+
+	// Redis as message bus for datastore and logout events.
+	messageBus := messageBusRedis.New(lookup)
+
+	// Auth Service.
+	authService, authBackground, err := auth.New(lookup, messageBus)
+	if err != nil {
+		return nil, fmt.Errorf("init auth system: %w", err)
+	}
+	backgroundTasks = append(backgroundTasks, authBackground)
+
+	service := func(ctx context.Context) error {
+		for _, bg := range backgroundTasks {
+			go bg(ctx, handleError)
+		}
+
+		return httpServer.Run(ctx, authService)
+	}
+
+	return service, nil
+}
+
+// contextDone returns nil if the context is done or exceeded.
+func contextDone(err error) error {
+	if err == nil || errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+		return nil
+	}
+	return err
+}
+
+func handleError(err error) {
+	if contextDone(err) == nil {
+		return
+	}
+
+	golog.Printf("Error: %v", err)
+}

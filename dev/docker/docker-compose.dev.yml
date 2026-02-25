@@ -67,40 +67,32 @@ services:
 
   backend:
     build:
-        context: ../../openslides-backend
+        context: ../../openslides-backend-service
         target: "dev"
         args:
             CONTEXT: "dev"
-    image: openslides-backend-dev
+    image: openslides-backend-go-dev
     depends_on:
       - datastore-reader
       - datastore-writer
       - auth
+      - redis
     env_file: services.env
     ports:
         - "9002:9002"
-        - "9003:9003"
-        - "5678:5678"
     environment:
       - OPENSLIDES_DEVELOPMENT=1
       - EMAIL_HOST=mailhog
       - EMAIL_PORT=1025
-      # - EMAIL_HOST_USER username
-      # - EMAIL_HOST_PASSWORD secret
-      # EMAIL_CONNECTION_SECURITY use NONE, STARTTLS or SSL/TLS
       - EMAIL_CONNECTION_SECURITY=NONE
       - EMAIL_TIMEOUT=5
       - EMAIL_ACCEPT_SELF_SIGNED_CERTIFICATE=false
       - DEFAULT_FROM_EMAIL=noreply@example.com
-      - OPENSLIDES_BACKEND_CREATE_INITIAL_DATA=1
     volumes:
-      - ../../openslides-backend/openslides_backend:/app/openslides_backend
-      - ../../openslides-backend/tests:/app/tests
-      - ../../openslides-backend/cli:/app/cli
-      - ../../openslides-backend/data:/app/data
-      - ../../openslides-backend/meta:/app/meta      
-      - ../../openslides-backend/requirements:/app/requirements
-      - ../../openslides-backend/scripts:/app/scripts
+      - ../../openslides-backend-service/internal:/app/openslides-backend-service/internal
+      - ../../openslides-backend-service/cmd:/app/openslides-backend-service/cmd
+      - ../../lib/openslides-go:/app/lib/openslides-go
+      - ./workspaces/backend.work:/app/go.work
 
   autoupdate:
     build:

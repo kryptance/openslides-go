@@ -1,0 +1,71 @@
+package motion
+
+import (
+	"testing"
+
+	"github.com/OpenSlides/openslides-backend-service/internal/action/testutil"
+)
+
+func TestSetStatePreviousState(t *testing.T) {
+	tc := testutil.New(t)
+	tc.CreateMeeting()
+	tc.SetModels(map[string]map[string]any{
+		"motion_state/76": {
+			"meeting_id":       1,
+			"name":             "test0",
+			"motion_ids":       []any{},
+			"next_state_ids":   []any{77},
+			"previous_state_ids": []any{},
+		},
+		"motion_state/77": {
+			"meeting_id":                1,
+			"name":                      "test1",
+			"motion_ids":                []any{22},
+			"first_state_of_workflow_id": 76,
+			"next_state_ids":            []any{},
+			"previous_state_ids":        []any{76},
+		},
+		"motion/22": {
+			"meeting_id": 1,
+			"title":      "test1",
+			"state_id":   77,
+		},
+	})
+	resp, err := tc.Request("motion.set_state", map[string]any{
+		"id":       22,
+		"state_id": 76,
+	})
+	tc.AssertSuccess(resp, err)
+	tc.AssertModelExists("motion/22", map[string]any{"state_id": 76})
+}
+
+func TestSetStateNextState(t *testing.T) {
+	tc := testutil.New(t)
+	tc.CreateMeeting()
+	tc.SetModels(map[string]map[string]any{
+		"motion_state/76": {
+			"meeting_id":     1,
+			"name":           "test0",
+			"motion_ids":     []any{22},
+			"next_state_ids": []any{77},
+		},
+		"motion_state/77": {
+			"meeting_id":        1,
+			"name":              "test1",
+			"motion_ids":        []any{},
+			"previous_state_ids": []any{76},
+		},
+		"motion/22": {
+			"meeting_id": 1,
+			"title":      "test1",
+			"state_id":   76,
+			"number":     "A021",
+		},
+	})
+	resp, err := tc.Request("motion.set_state", map[string]any{
+		"id":       22,
+		"state_id": 77,
+	})
+	tc.AssertSuccess(resp, err)
+	tc.AssertModelExists("motion/22", map[string]any{"state_id": 77})
+}
